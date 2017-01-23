@@ -125,8 +125,8 @@ public class ProdutoDAO implements DAO{
         }
         
         try {
-           String SQL = "INSERT INTO `Loja-Online`.`PRODUTO` (`PRO_ID`, `PRO_NOME`, `PRO_DESCRICAO`, `PRO_VALOR`, `PRO_QUANTIDADE`, "
-                   + "`PRO_MARCA`, `PRO_CATEGORIA`) VALUES (NULL, ?, ?, ?, ?, ?, ?, ?)";
+           String SQL = "INSERT INTO `Loja-Online`.`PRODUTO` (`PRO_ID`, `PRO_NOME`, `PRO_DESCRICAO`, `PRO_VALOR`, `PRO_QUANTIDADE`, `PRO_FOTOS` "
+                   + "`PRO_MARCA`, `PRO_CATEGORIA`) VALUES (NULL, ?, ?, ?, ?, NULL, ?, ?)";
            
            conn = this.conn;
            ps = conn.prepareStatement(SQL);
