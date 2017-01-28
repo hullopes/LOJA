@@ -19,7 +19,7 @@ import model.Produto;
  */
 public class ProdutoDAO implements DAO{
     
-     private Connection conn;
+    private Connection conn;
     private PreparedStatement ps = null;
 
 
@@ -47,6 +47,29 @@ public class ProdutoDAO implements DAO{
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
+    public static int pegaUltimoID() throws Exception{
+        PreparedStatement ps = null;
+        Connection conn = null;
+        ResultSet rs = null;
+        int id = 0;
+        try{
+            conn = ConnectionDAO.getConnection();
+            String SQL = "SELECT * FROM PRODUTOS ORDER BY PRO_ID DESC LIMIT 0,1";
+            ps = conn.prepareStatement(SQL);
+            rs = ps.executeQuery();
+            while(rs.next()){
+                id = rs.getInt(1);                
+            }
+        }  catch(SQLException sqle){
+        //}catch(Exception e){
+            throw new Exception("Erro SQL:" + sqle);
+            //throw new Exception();
+        }finally{
+            ConnectionDAO.closeConnection(conn,ps,rs);
+        } 
+        return id;
+    }
+    
     @Override
     public List procura(Object ob) throws Exception {
          List<Produto> list = new ArrayList<Produto>();
@@ -59,7 +82,7 @@ public class ProdutoDAO implements DAO{
             throw new Exception("O valor passado não pode ser nulo");
         try{
             conn = ConnectionDAO.getConnection();
-            String SQL = "SELECT * FROM PRODUTO ";
+            String SQL = "SELECT * FROM PRODUTOS ";
             String where = "";
             boolean checa = false;
             if(produto.getPRO_ID()!=0 || produto.getPRO_NOME()!=null || produto.getPRO_DESCRICAO()!=null || produto.getPRO_VALOR()!=0 || produto.getPRO_QUANTIDADE()!=0 || produto.getPRO_MARCA()!=null || produto.getPRO_CATEGORIA()!=null){
@@ -73,6 +96,31 @@ public class ProdutoDAO implements DAO{
                     where += " PRO_NOME=? ";
                     checa = true;
                 }
+                if(produto.getPRO_DESCRICAO()!=null){
+                    if(checa) where+="AND";
+                    where += " PRO_DESCRICAO=? ";
+                    checa = true;
+                }
+                if(produto.getPRO_VALOR()!=null){
+                    if(checa) where+="AND";
+                    where += " PRO_VALOR=? ";
+                    checa = true;
+                }
+                if(produto.getPRO_QUANTIDADE()>=0){
+                    if(checa) where+="AND";
+                    where += " PRO_QUANTIDADE=? ";
+                    checa = true;
+                }
+                if(produto.getPRO_MARCA()!=null){
+                    if(checa) where+="AND";
+                    where += " PRO_MARCA=? ";
+                    checa = true;
+                }
+                if(produto.getPRO_CATEGORIA()!=null){
+                    if(checa) where+="AND";
+                    where += " PRO_CATEGORIA=? ";
+                    checa = true;
+                }
             }
             ps = conn.prepareStatement(SQL+where);
             int contaCampos=1;
@@ -83,6 +131,27 @@ public class ProdutoDAO implements DAO{
                 }
                 if (produto.getPRO_NOME()!=null){
                     ps.setString(contaCampos,produto.getPRO_NOME());
+                    contaCampos++;
+                }
+                if(produto.getPRO_DESCRICAO()!=null){
+                    if(checa) where+="AND";
+                    ps.setString(contaCampos,produto.getPRO_DESCRICAO());
+                    contaCampos++;
+                }
+                if(produto.getPRO_VALOR()!=null){
+                    ps.setDouble(contaCampos,produto.getPRO_VALOR());
+                    contaCampos++;
+                }
+                if(produto.getPRO_QUANTIDADE()>=0){
+                    ps.setInt(contaCampos,produto.getPRO_QUANTIDADE());
+                    contaCampos++;
+                }
+                if(produto.getPRO_MARCA()!=null){
+                    ps.setString(contaCampos,produto.getPRO_MARCA());
+                    contaCampos++;
+                }
+                if(produto.getPRO_CATEGORIA()!=null){
+                    ps.setString(contaCampos,produto.getPRO_CATEGORIA());
                     contaCampos++;
                 }
             }
@@ -125,7 +194,7 @@ public class ProdutoDAO implements DAO{
         }
         
         try {
-           String SQL = "INSERT INTO `Loja-Online`.`PRODUTO` (`PRO_ID`, `PRO_NOME`, `PRO_DESCRICAO`, `PRO_VALOR`, `PRO_QUANTIDADE`, `PRO_FOTOS` "
+           String SQL = "INSERT INTO `Loja-Online`.`PRODUTOS` (`PRO_ID`, `PRO_NOME`, `PRO_DESCRICAO`, `PRO_VALOR`, `PRO_QUANTIDADE`, `PRO_FOTOS` ,"
                    + "`PRO_MARCA`, `PRO_CATEGORIA`) VALUES (NULL, ?, ?, ?, ?, NULL, ?, ?)";
            
            conn = this.conn;
@@ -136,7 +205,8 @@ public class ProdutoDAO implements DAO{
            ps.setInt(4, produto.getPRO_QUANTIDADE());
           // ps.setBytes(5, produto.getPRO_FOTOS());
            ps.setString(5, produto.getPRO_MARCA());
-           ps.setString(5, produto.getPRO_CATEGORIA());
+           ps.setString(6, produto.getPRO_CATEGORIA());
+           ps.executeUpdate();
            
         } catch (SQLException sqle) {
         
